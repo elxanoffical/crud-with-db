@@ -9,29 +9,40 @@ export async function GET(req, { params }) {
 
     const findBookById = await Book.findById(id);
 
-    return NextResponse.json({ data: findBookById }, { status: 200 });
+    const bookWithId = findBookById.toObject();
+    bookWithId.id = bookWithId._id;
+    delete bookWithId._id;
+
+    return NextResponse.json({ data: bookWithId }, { status: 200 });
   } catch (err) {
     return NextResponse.json(
-      { mes: "THIS IS POST METHOD (USERS)".err },
+      { mes: "THIS IS POST METHOD (BOOKS)".err },
       { status: 500 }
     );
   }
 }
 
-export async function DELETE(req,{params}) {
-  
+export async function DELETE(req, { params }) {
   try {
     await connectDB();
-    const {id} = await params
-    const DeleteBookById = await Book.findByIdAndDelete(id)
 
-    return NextResponse.json({ data:"deleted"},{ status: 200 }
-    );
+    const { id } = await params;
+    console.log("Server received ID:", id);  
 
+    if (!id) {
+      return NextResponse.json(
+        { message: "ID mövcud deyil." },
+        { status: 400 }
+      );
+    }
+
+    const DeleteBookById = await Book.findByIdAndDelete(id);
+
+    return NextResponse.json({ data: DeleteBookById }, { status: 200 });
   } catch (err) {
-    return NextResponse.json({ mes: "THIS IS POST METHOD (USERS)".err },{ status: 500 }
+    return NextResponse.json(
+      { mes: "THIS IS DELETE METHOD (BOOKS)".err },
+      { status: 500 }
     );
   }
 }
-
-

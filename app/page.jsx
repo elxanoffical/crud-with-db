@@ -3,21 +3,19 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 export default function HomePage() {
-
   const { register, handleSubmit, reset } = useForm();
   const [books, setBooks] = useState([]);
   const [message, setMessage] = useState("");
 
   const onSubmit = async (data) => {
     try {
-
       // API-yə POST sorğusu göndərilir.
       const res = await fetch("/api/books", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      
+
       if (res.ok) {
         setMessage("Kitab əlavə olundu!");
         // Serverdən gələn cavabı əldə edirik
@@ -27,9 +25,29 @@ export default function HomePage() {
         setBooks((prev) => [...prev, newBook]);
 
         reset();
-
       } else {
         setMessage("Əlavə olunarkən xəta baş verdi.");
+      }
+    } catch (error) {
+      setMessage("Xəta: " + error.message);
+    }
+  };
+
+  // Kitabı silmək üçün funksiya
+  const onDelete = async (id) => {
+    console.log("Deleting book with ID:", id);  // ID-nin düzgün olduğunu yoxlayın
+
+    try {
+      const res = await fetch(`/api/books/${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setMessage("Kitab silindi!");
+        // Silinən kitabı siyahıdan çıxarırıq
+        setBooks((prev) => prev.filter((book) => book._id !== id));
+      } else {
+        setMessage("Kitab silinərkən xəta baş verdi.");
       }
     } catch (error) {
       setMessage("Xəta: " + error.message);
@@ -41,8 +59,10 @@ export default function HomePage() {
     async function fetchBooks() {
       try {
         const res = await fetch("/api/books");
+        console.log(res)
         if (res.ok) {
           const result = await res.json();
+          console.log(result.data)
           setBooks(result.data);
         }
       } catch (error) {
@@ -69,7 +89,7 @@ export default function HomePage() {
           placeholder="Qiymət"
           className="border p-2 w-full rounded"
         />
-        <input
+        {/* <input
           {...register("description", { required: true })}
           placeholder="Təsvir"
           className="border p-2 w-full rounded"
@@ -105,7 +125,7 @@ export default function HomePage() {
           {...register("stockCount", { required: true })}
           placeholder="Stok Sayı"
           className="border p-2 w-full rounded"
-        />
+        /> */}
         <button
           type="submit"
           className="bg-blue-500 hover:bg-blue-600 text-white p-2 w-full rounded"
@@ -118,19 +138,31 @@ export default function HomePage() {
         <h2 className="text-xl font-bold mb-2">Əlavə Olunan Kitablar</h2>
         {books.length > 0 ? (
           <ul className="space-y-4">
-            {books.map((book, index) => (
-              <li key={index} className="border p-4 rounded">
-                <p className="font-bold">Kitab Adı: {book.name}</p>
-                <p>Qiymət: {book.price} AZN</p>
-                <p>Təsvir: {book.description}</p>
-                <p>Səhifə Sayı: {book.pageCount}</p>
-                <p>Kateqoriya: {book.category}</p>
-                <p>Nəşr Tarixi: {book.publishDate}</p>
-                <p>Müəllif: {book.author}</p>
-                <p>Dil: {book.language}</p>
-                <p>Stok Sayı: {book.stockCount}</p>
-              </li>
-            ))}
+            {books.map((book, index) => {
+              const bookId = book._id || book.id;  // _id varsa, onu id olaraq istifadə et
+              console.log("Book ID:", bookId); 
+              return (
+                <li key={bookId} className="border p-4 rounded relative">
+                  <button
+                    onClick={() => {
+                      onDelete(bookId);
+                    }}
+                    className="absolute top-2 right-2 text-red-500 cursor-pointer"
+                  >
+                    X
+                  </button>
+                  <p className="font-bold">Kitab Adı: {book.name}</p>
+                  <p>Qiymət: {book.price} AZN</p>
+                  {/* <p>Təsvir: {book.description}</p>
+                  <p>Səhifə Sayı: {book.pageCount}</p>
+                  <p>Kateqoriya: {book.category}</p>
+                  <p>Nəşr Tarixi: {book.publishDate}</p>
+                  <p>Müəllif: {book.author}</p>
+                  <p>Dil: {book.language}</p>
+                  <p>Stok Sayı: {book.stockCount}</p> */}
+                </li>
+              );
+            })}
           </ul>
         ) : (
           <p>Hal-hazırda kitab yoxdur.</p>

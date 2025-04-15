@@ -44,8 +44,6 @@ export async function DELETE(req) {
   
   try {
     await connectDB();
-
-
     const body = await req.json()
     const DeleteBookById = await Book.findByIdAndDelete(body.id)
 
