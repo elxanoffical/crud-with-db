@@ -35,8 +35,6 @@ export default function HomePage() {
 
   // Kitabı silmək üçün funksiya
   const onDelete = async (id) => {
-    console.log("Deleting book with ID:", id);  // ID-nin düzgün olduğunu yoxlayın
-
     try {
       const res = await fetch(`/api/books/${id}`, {
         method: "DELETE",
@@ -50,8 +48,8 @@ export default function HomePage() {
         setMessage("Kitab silinərkən xəta baş verdi.");
       }
     } catch (error) {
-      setMessage("Xəta: " + error.message);
-    }
+      setMessage("Xəta: ", error.message);
+    } 
   };
 
   // Səhifə yüklənərkən mövcud kitabları alırıq.
@@ -59,10 +57,8 @@ export default function HomePage() {
     async function fetchBooks() {
       try {
         const res = await fetch("/api/books");
-        console.log(res)
         if (res.ok) {
           const result = await res.json();
-          console.log(result.data)
           setBooks(result.data);
         }
       } catch (error) {
@@ -138,14 +134,12 @@ export default function HomePage() {
         <h2 className="text-xl font-bold mb-2">Əlavə Olunan Kitablar</h2>
         {books.length > 0 ? (
           <ul className="space-y-4">
-            {books.map((book, index) => {
-              const bookId = book._id || book.id;  // _id varsa, onu id olaraq istifadə et
-              console.log("Book ID:", bookId); 
+            {books.map((book) => {
               return (
-                <li key={bookId} className="border p-4 rounded relative">
+                <li key={book._id} className="border p-4 rounded relative">
                   <button
                     onClick={() => {
-                      onDelete(bookId);
+                      onDelete(book._id);
                     }}
                     className="absolute top-2 right-2 text-red-500 cursor-pointer"
                   >
