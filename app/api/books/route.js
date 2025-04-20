@@ -1,6 +1,6 @@
 import { connectDB } from "../../../lib/db";
 import { NextResponse } from "next/server";
-import { Book } from "../../../lib/models/Book";
+import { Book } from "../../../lib/models/User";
 import { z } from "zod";
 
 const bookSchema = z.object({
